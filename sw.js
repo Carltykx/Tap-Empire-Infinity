@@ -1,11 +1,11 @@
 // Service Worker for Tap Empire Infinity PWA
 const CACHE_NAME = 'tap-empire-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install event - cache assets
