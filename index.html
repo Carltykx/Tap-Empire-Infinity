@@ -16,18 +16,45 @@
             min-height: 100vh; color: white; overflow-x: hidden; user-select: none;
         }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 20px 0; margin-bottom: 20px; }
+        header { text-align: center; padding: 20px 0; margin-bottom: 20px; position: relative; }
         h1 { font-size: 2.5em; text-shadow: 0 0 20px rgba(99, 102, 241, 0.8); letter-spacing: 2px; }
+        .empire-level {
+            position: absolute; top: 10px; right: 10px; background: rgba(251, 191, 36, 0.2);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9em; border: 2px solid #fbbf24;
+        }
+        .daily-bonus-btn {
+            position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #10b981, #059669);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9em; cursor: pointer;
+            border: 2px solid #10b981; transition: all 0.3s; animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .daily-bonus-btn:hover { background: linear-gradient(135deg, #059669, #047857); }
+        .stats-row { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px;
+            padding: 15px; text-align: center; flex: 1; border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .stat-value { font-size: 1.5em; font-weight: bold; color: #fbbf24; }
+        .stat-label { font-size: 0.9em; color: #e5e7eb; margin-top: 5px; }
         .coin-display {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px;
             padding: 30px; text-align: center; margin-bottom: 30px;
             border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
         .coin-amount {
             font-size: 3em; font-weight: bold; color: #fbbf24;
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); margin-bottom: 10px;
         }
         .coin-label { font-size: 1.2em; color: #e5e7eb; }
+        .progress-bar {
+            width: 100%; height: 8px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px; margin: 15px 0; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            border-radius: 10px; transition: width 0.5s ease; width: 0%;
+        }
         .tap-button {
             width: 250px; height: 250px; margin: 40px auto;
             background: radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
@@ -38,15 +65,33 @@
         }
         .tap-button:active { transform: scale(0.95); box-shadow: 0 5px 20px rgba(251, 191, 36, 0.7); }
         .tap-button::before { content: '💰'; font-size: 1.2em; }
+        .tap-multiplier {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            background: #ef4444; color: white; padding: 5px 15px; border-radius: 20px;
+            font-size: 0.9em; display: none;
+        }
         .passive-income { text-align: center; margin: 20px 0; font-size: 1.2em; color: #86efac; }
-        .upgrades-section { margin-top: 40px; }
-        .upgrades-title { font-size: 2em; text-align: center; margin-bottom: 30px; color: #fbbf24; }
+        .achievements-section { margin: 30px 0; }
+        .achievements-title { font-size: 1.5em; text-align: center; margin-bottom: 20px; color: #fbbf24; }
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+        .achievement {
+            background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 15px;
+            text-align: center; border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.3s;
+        }
+        .achievement.unlocked { border-color: #fbbf24; background: rgba(251, 191, 36, 0.2); }
+        .achievement-icon { font-size: 2em; margin-bottom: 5px; }
+        .achievement-name { font-size: 0.8em; color: #e5e7eb; }
+        .tabs { display: flex; margin-bottom: 20px; border-radius: 10px; overflow: hidden; }
+        .tab { flex: 1; padding: 15px; background: rgba(255, 255, 255, 0.1); cursor: pointer; text-align: center; transition: all 0.3s; }
+        .tab.active { background: rgba(251, 191, 36, 0.3); border-bottom: 3px solid #fbbf24; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .upgrades-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .upgrades-grid { grid-template-columns: 1fr 1fr; } }
         .upgrade-card {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
             border-radius: 15px; padding: 25px; border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.2s, border-color 0.2s; position: relative;
         }
         .upgrade-card:hover { transform: translateY(-5px); border-color: rgba(251, 191, 36, 0.5); }
         .upgrade-name { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; color: #fbbf24; }
@@ -62,9 +107,26 @@
             background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: scale(1.05);
         }
         .upgrade-button:disabled { background: #4b5563; cursor: not-allowed; opacity: 0.5; }
+        .prestige-card {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6); border-radius: 15px; padding: 25px;
+            text-align: center; border: 2px solid #8b5cf6; margin-bottom: 20px;
+        }
+        .prestige-button {
+            background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 10px;
+            color: white; font-size: 1.2em; font-weight: bold; padding: 15px 30px; cursor: pointer;
+            transition: all 0.2s; margin-top: 15px;
+        }
+        .prestige-button:hover:not(:disabled) { transform: scale(1.05); }
+        .prestige-button:disabled { background: #4b5563; cursor: not-allowed; opacity: 0.5; }
+        .leaderboard { background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; }
+        .leaderboard-item {
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .leaderboard-rank { font-weight: bold; color: #fbbf24; }
         .floating-number {
             position: fixed; font-size: 2em; font-weight: bold; color: #fbbf24; pointer-events: none;
-            animation: float-up 1s ease-out forwards; text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            animation: float-up 1s ease-out forwards; text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); z-index: 1000;
         }
         @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
         .install-prompt {
@@ -75,132 +137,515 @@
             background: white; color: #6366f1; border: none; padding: 10px 30px;
             border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin: 10px;
         }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e1b4b, #312e81); padding: 30px; border-radius: 20px;
+            text-align: center; border: 2px solid #fbbf24; max-width: 400px; margin: 20px;
+        }
+        .close-modal { float: right; font-size: 1.5em; cursor: pointer; color: #fbbf24; }
         .footer { text-align: center; padding: 30px 0; color: #9ca3af; font-size: 0.9em; }
+        .sound-toggle {
+            position: absolute; top: 10px; right: 80px; background: rgba(255, 255, 255, 0.2);
+            padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header><h1>EMPIRE WEALTH</h1></header>
+        <header>
+            <div class="daily-bonus-btn" onclick="openDailyBonus()">🎁 Daily</div>
+            <div class="sound-toggle" onclick="toggleSound()" id="soundToggle">🔊</div>
+            <div class="empire-level">Empire Level: <span id="empireLevel">1</span></div>
+            <h1>EMPIRE WEALTH</h1>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTaps">0</div>
+                <div class="stat-label">Total Taps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalEarned">0</div>
+                <div class="stat-label">Total Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="prestigePoints">0</div>
+                <div class="stat-label">Prestige Points</div>
+            </div>
+        </div>
+
         <div class="coin-display">
             <div class="coin-amount" id="coinAmount">0</div>
             <div class="coin-label">coins</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="font-size: 0.9em; color: #a5b4fc;">Progress to next Empire Level</div>
         </div>
-        <div class="tap-button" id="tapButton"></div>
-        <div class="passive-income"><span id="passiveIncome">Passive Income: 0/sec</span></div>
-        <div class="upgrades-section">
-            <h2 class="upgrades-title">Upgrades</h2>
+
+        <div class="tap-button" id="tapButton">
+            <div class="tap-multiplier" id="tapMultiplier">x2</div>
+        </div>
+
+        <div class="passive-income">
+            <span id="passiveIncome">Passive Income: 0/sec</span>
+        </div>
+
+        <div class="achievements-section">
+            <h3 class="achievements-title">Achievements</h3>
+            <div class="achievements-grid" id="achievementsGrid">
+                <div class="achievement" data-achievement="first_tap">
+                    <div class="achievement-icon">👆</div>
+                    <div class="achievement-name">First Tap</div>
+                </div>
+                <div class="achievement" data-achievement="hundred_taps">
+                    <div class="achievement-icon">💯</div>
+                    <div class="achievement-name">100 Taps</div>
+                </div>
+                <div class="achievement" data-achievement="first_upgrade">
+                    <div class="achievement-icon">⬆️</div>
+                    <div class="achievement-name">First Upgrade</div>
+                </div>
+                <div class="achievement" data-achievement="millionaire">
+                    <div class="achievement-icon">💰</div>
+                    <div class="achievement-name">Millionaire</div>
+                </div>
+                <div class="achievement" data-achievement="empire_level_5">
+                    <div class="achievement-icon">👑</div>
+                    <div class="achievement-name">Empire V</div>
+                </div>
+                <div class="achievement" data-achievement="prestige_master">
+                    <div class="achievement-icon">🌟</div>
+                    <div class="achievement-name">Prestige</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('upgrades')">Upgrades</div>
+            <div class="tab" onclick="switchTab('prestige')">Prestige</div>
+            <div class="tab" onclick="switchTab('leaderboard')">Leaderboard</div>
+        </div>
+
+        <div class="tab-content active" id="upgrades">
             <div class="upgrades-grid">
                 <div class="upgrade-card">
                     <div class="upgrade-name">Tap Power</div>
-                    <div class="upgrade-description">Increase coins per tap</div>
+                    <div class="upgrade-description">Increase coins per tap (+<span id="tapPowerValue">1</span> per level)</div>
                     <div class="upgrade-level">Level: <span id="tapPowerLevel">0</span></div>
                     <div class="upgrade-cost">Cost: <span id="tapPowerCost">10</span></div>
                     <button class="upgrade-button" id="tapPowerButton">Upgrade</button>
                 </div>
                 <div class="upgrade-card">
                     <div class="upgrade-name">Auto Tapper</div>
-                    <div class="upgrade-description">Earn coins automatically per second</div>
+                    <div class="upgrade-description">Earn coins automatically (+<span id="autoTapperValue">1</span>/sec per level)</div>
                     <div class="upgrade-level">Level: <span id="autoTapperLevel">0</span></div>
                     <div class="upgrade-cost">Cost: <span id="autoTapperCost">50</span></div>
                     <button class="upgrade-button" id="autoTapperButton">Upgrade</button>
                 </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Golden Touch</div>
+                    <div class="upgrade-description">10% chance for 5x tap value</div>
+                    <div class="upgrade-level">Level: <span id="goldenTouchLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="goldenTouchCost">500</span></div>
+                    <button class="upgrade-button" id="goldenTouchButton">Upgrade</button>
+                </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Coin Factory</div>
+                    <div class="upgrade-description">Generates coins every 10 seconds</div>
+                    <div class="upgrade-level">Level: <span id="coinFactoryLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="coinFactoryCost">2000</span></div>
+                    <button class="upgrade-button" id="coinFactoryButton">Upgrade</button>
+                </div>
             </div>
         </div>
+
+        <div class="tab-content" id="prestige">
+            <div class="prestige-card">
+                <h3>🌟 PRESTIGE SYSTEM 🌟</h3>
+                <p>Reset your progress to gain permanent bonuses!</p>
+                <p>Requirements: 1,000,000 coins & Empire Level 10</p>
+                <p>You will gain: <span id="prestigeGain">1</span> Prestige Point</p>
+                <p>Each Prestige Point gives +20% tap power and +10% passive income</p>
+                <button class="prestige-button" id="prestigeButton">PRESTIGE NOW</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="leaderboard">
+            <div class="leaderboard">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #fbbf24;">🏆 Top Empires 🏆</h3>
+                <div class="leaderboard-item">
+                    <div><span class="leaderboard-rank">#1</span> Crypto King</div>
+                    <div>Level 47 - 999,999,999 coins</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div><span class="leaderboard-rank">#2</span> Gold Digger</div>
+                    <div>Level 35 - 567,890,123 coins</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div><span class="leaderboard-rank">#3</span> Coin Master</div>
+                    <div>Level 28 - 234,567,890 coins</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div><span class="leaderboard-rank">#4</span> Tap Legend</div>
+                    <div>Level 22 - 123,456,789 coins</div>
+                </div>
+                <div class="leaderboard-item">
+                    <div><span class="leaderboard-rank">#5</span> Empire Builder</div>
+                    <div>Level 18 - 89,123,456 coins</div>
+                </div>
+                <div class="leaderboard-item" id="playerRank">
+                    <div><span class="leaderboard-rank">#???</span> <span id="playerName">Your Empire</span></div>
+                    <div>Level <span id="playerLevel">1</span> - <span id="playerCoins">0</span> coins</div>
+                </div>
+            </div>
+        </div>
+
         <div class="footer">
-            <p>Tap Empire Infinity PWA v1.0</p>
-            <p>Your progress is automatically saved</p>
+            <p>Tap Empire Infinity PWA v2.0 - Enhanced Edition</p>
+            <p>Your empire awaits! Keep tapping and upgrading!</p>
         </div>
     </div>
+
+    <!-- Daily Bonus Modal -->
+    <div class="modal" id="dailyBonusModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDailyBonus()">&times;</span>
+            <h2>🎁 Daily Bonus!</h2>
+            <p>Come back every day for amazing rewards!</p>
+            <div id="dailyBonusContent"></div>
+            <button class="install-button" onclick="claimDailyBonus()">Claim Reward!</button>
+        </div>
+    </div>
+
     <div class="install-prompt" id="installPrompt">
         <p>Install Tap Empire to your home screen!</p>
         <button class="install-button" id="installButton">Install App</button>
         <button class="install-button" id="dismissButton">Maybe Later</button>
     </div>
+
     <script>
-        let gameState = { coins: 0, tapPower: 0, autoTapper: 0, lastSaveTime: Date.now() };
-        const upgrades = {
-            tapPower: { baseCost: 10, costMultiplier: 2, valuePerLevel: 1 },
-            autoTapper: { baseCost: 50, costMultiplier: 2, valuePerLevel: 1 }
+        // Enhanced Game State with new features
+        let gameState = {
+            coins: 0,
+            tapPower: 0,
+            autoTapper: 0,
+            goldenTouch: 0,
+            coinFactory: 0,
+            totalTaps: 0,
+            totalEarned: 0,
+            empireLevel: 1,
+            prestigePoints: 0,
+            lastSaveTime: Date.now(),
+            lastDailyBonus: 0,
+            soundEnabled: true,
+            playerName: "Your Empire",
+            achievements: {}
         };
+
+        // Sound effects using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        function playSound(frequency, duration, type = 'sine') {
+            if (!soundEnabled) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            gameState.soundEnabled = soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+            saveGame();
+        }
+
+        // Enhanced upgrade configurations with percentage-based increases
+        const upgrades = {
+            tapPower: { baseCost: 10, costMultiplier: 1.15, valuePerLevel: 1 },
+            autoTapper: { baseCost: 50, costMultiplier: 1.20, valuePerLevel: 1 },
+            goldenTouch: { baseCost: 500, costMultiplier: 1.25, valuePerLevel: 1 },
+            coinFactory: { baseCost: 2000, costMultiplier: 1.30, valuePerLevel: 100 }
+        };
+
+        // Achievement definitions
+        const achievements = {
+            first_tap: { name: "First Tap", description: "Make your first tap", icon: "👆" },
+            hundred_taps: { name: "Century Tapper", description: "Make 100 taps", icon: "💯" },
+            first_upgrade: { name: "Growing Empire", description: "Buy your first upgrade", icon: "⬆️" },
+            millionaire: { name: "Millionaire", description: "Earn 1,000,000 coins", icon: "💰" },
+            empire_level_5: { name: "Empire Level V", description: "Reach Empire Level 5", icon: "👑" },
+            prestige_master: { name: "Prestige Master", description: "Perform your first prestige", icon: "🌟" }
+        };
+
+        // DOM Elements
         const coinAmountEl = document.getElementById('coinAmount');
         const tapButton = document.getElementById('tapButton');
         const passiveIncomeEl = document.getElementById('passiveIncome');
-        const tapPowerLevelEl = document.getElementById('tapPowerLevel');
-        const tapPowerCostEl = document.getElementById('tapPowerCost');
-        const tapPowerButtonEl = document.getElementById('tapPowerButton');
-        const autoTapperLevelEl = document.getElementById('autoTapperLevel');
-        const autoTapperCostEl = document.getElementById('autoTapperCost');
-        const autoTapperButtonEl = document.getElementById('autoTapperButton');
+        const progressFillEl = document.getElementById('progressFill');
+        const empireLevelEl = document.getElementById('empireLevel');
+        const totalTapsEl = document.getElementById('totalTaps');
+        const totalEarnedEl = document.getElementById('totalEarned');
+        const prestigePointsEl = document.getElementById('prestigePoints');
+        const tapMultiplierEl = document.getElementById('tapMultiplier');
 
+        // Format large numbers
         function formatNumber(num) {
-            if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
-            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
             return Math.floor(num).toString();
         }
 
+        // Calculate upgrade cost with percentage increase
         function getUpgradeCost(upgradeType, level) {
             const config = upgrades[upgradeType];
             return Math.floor(config.baseCost * Math.pow(config.costMultiplier, level));
         }
 
-        function updateDisplay() {
-            coinAmountEl.textContent = formatNumber(gameState.coins);
-            tapPowerLevelEl.textContent = gameState.tapPower;
-            tapPowerCostEl.textContent = formatNumber(getUpgradeCost('tapPower', gameState.tapPower));
-            autoTapperLevelEl.textContent = gameState.autoTapper;
-            autoTapperCostEl.textContent = formatNumber(getUpgradeCost('autoTapper', gameState.autoTapper));
-            const passiveIncome = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
-            passiveIncomeEl.textContent = `Passive Income: ${formatNumber(passiveIncome)}/sec`;
-            tapPowerButtonEl.disabled = gameState.coins < getUpgradeCost('tapPower', gameState.tapPower);
-            autoTapperButtonEl.disabled = gameState.coins < getUpgradeCost('autoTapper', gameState.autoTapper);
+        // Calculate empire level and progress
+        function updateEmpireLevel() {
+            const newLevel = Math.floor(Math.log10(Math.max(gameState.totalEarned, 1)) * 2) + 1;
+            if (newLevel > gameState.empireLevel) {
+                gameState.empireLevel = newLevel;
+                showFloatingNumber(300, 200, `Empire Level ${newLevel}!`, '#fbbf24', '1.5em');
+                playSound(800, 0.5);
+                checkAchievements();
+            }
+
+            const nextLevelReq = Math.pow(10, (gameState.empireLevel) / 2);
+            const progress = (gameState.totalEarned / nextLevelReq) * 100;
+            progressFillEl.style.width = Math.min(progress, 100) + '%';
         }
 
-        function showFloatingNumber(x, y, amount) {
+        // Check and unlock achievements
+        function checkAchievements() {
+            const checks = {
+                first_tap: gameState.totalTaps >= 1,
+                hundred_taps: gameState.totalTaps >= 100,
+                first_upgrade: gameState.tapPower > 0 || gameState.autoTapper > 0,
+                millionaire: gameState.totalEarned >= 1000000,
+                empire_level_5: gameState.empireLevel >= 5,
+                prestige_master: gameState.prestigePoints > 0
+            };
+
+            Object.keys(checks).forEach(id => {
+                if (checks[id] && !gameState.achievements[id]) {
+                    gameState.achievements[id] = true;
+                    document.querySelector(`[data-achievement="${id}"]`).classList.add('unlocked');
+                    showFloatingNumber(300, 300, `Achievement Unlocked!`, '#10b981', '1.2em');
+                    playSound(1000, 0.3);
+                }
+            });
+        }
+
+        // Update display
+        function updateDisplay() {
+            coinAmountEl.textContent = formatNumber(gameState.coins);
+            empireLevelEl.textContent = gameState.empireLevel;
+            totalTapsEl.textContent = formatNumber(gameState.totalTaps);
+            totalEarnedEl.textContent = formatNumber(gameState.totalEarned);
+            prestigePointsEl.textContent = gameState.prestigePoints;
+
+            // Update upgrade displays
+            ['tapPower', 'autoTapper', 'goldenTouch', 'coinFactory'].forEach(upgrade => {
+                const level = gameState[upgrade];
+                document.getElementById(upgrade + 'Level').textContent = level;
+                document.getElementById(upgrade + 'Cost').textContent = formatNumber(getUpgradeCost(upgrade, level));
+
+                const button = document.getElementById(upgrade + 'Button');
+                button.disabled = gameState.coins < getUpgradeCost(upgrade, level);
+            });
+
+            // Update passive income
+            const basePassive = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
+            const prestigeBonus = 1 + (gameState.prestigePoints * 0.1);
+            const totalPassive = basePassive * prestigeBonus;
+            passiveIncomeEl.textContent = `Passive Income: ${formatNumber(totalPassive)}/sec`;
+
+            // Update prestige
+            const canPrestige = gameState.coins >= 1000000 && gameState.empireLevel >= 10;
+            document.getElementById('prestigeButton').disabled = !canPrestige;
+            document.getElementById('prestigeGain').textContent = Math.floor(gameState.empireLevel / 10);
+
+            // Update leaderboard
+            document.getElementById('playerLevel').textContent = gameState.empireLevel;
+            document.getElementById('playerCoins').textContent = formatNumber(gameState.coins);
+
+            updateEmpireLevel();
+        }
+
+        // Show floating number animation
+        function showFloatingNumber(x, y, text, color = '#fbbf24', fontSize = '2em') {
             const floatingNum = document.createElement('div');
             floatingNum.className = 'floating-number';
-            floatingNum.textContent = '+' + formatNumber(amount);
+            floatingNum.textContent = text;
             floatingNum.style.left = x + 'px';
             floatingNum.style.top = y + 'px';
+            floatingNum.style.color = color;
+            floatingNum.style.fontSize = fontSize;
             document.body.appendChild(floatingNum);
             setTimeout(() => floatingNum.remove(), 1000);
         }
 
+        // Enhanced tap handling
         tapButton.addEventListener('click', (e) => {
-            const tapValue = 1 + (gameState.tapPower * upgrades.tapPower.valuePerLevel);
-            gameState.coins += tapValue;
+            let tapValue = 1 + (gameState.tapPower * upgrades.tapPower.valuePerLevel);
+
+            // Apply prestige bonus
+            const prestigeBonus = 1 + (gameState.prestigePoints * 0.2);
+            tapValue = Math.floor(tapValue * prestigeBonus);
+
+            // Golden Touch chance
+            let multiplier = 1;
+            if (gameState.goldenTouch > 0 && Math.random() < (gameState.goldenTouch * 0.1)) {
+                multiplier = 5;
+                tapMultiplierEl.style.display = 'block';
+                tapMultiplierEl.textContent = 'x5!';
+                setTimeout(() => { tapMultiplierEl.style.display = 'none'; }, 1000);
+                playSound(1200, 0.2);
+            }
+
+            const finalValue = tapValue * multiplier;
+            gameState.coins += finalValue;
+            gameState.totalTaps++;
+            gameState.totalEarned += finalValue;
+
             updateDisplay();
-            showFloatingNumber(e.pageX, e.pageY, tapValue);
+            showFloatingNumber(e.pageX, e.pageY, '+' + formatNumber(finalValue));
+            playSound(400 + Math.random() * 200, 0.1);
+            checkAchievements();
         });
 
-        tapPowerButtonEl.addEventListener('click', () => {
-            const cost = getUpgradeCost('tapPower', gameState.tapPower);
+        // Upgrade handlers
+        function buyUpgrade(upgradeType) {
+            const cost = getUpgradeCost(upgradeType, gameState[upgradeType]);
             if (gameState.coins >= cost) {
                 gameState.coins -= cost;
-                gameState.tapPower++;
+                gameState[upgradeType]++;
                 updateDisplay();
+                playSound(600, 0.2);
                 saveGame();
+                checkAchievements();
             }
+        }
+
+        ['tapPower', 'autoTapper', 'goldenTouch', 'coinFactory'].forEach(upgrade => {
+            document.getElementById(upgrade + 'Button').addEventListener('click', () => buyUpgrade(upgrade));
         });
 
-        autoTapperButtonEl.addEventListener('click', () => {
-            const cost = getUpgradeCost('autoTapper', gameState.autoTapper);
-            if (gameState.coins >= cost) {
-                gameState.coins -= cost;
-                gameState.autoTapper++;
-                updateDisplay();
-                saveGame();
-            }
-        });
-
+        // Auto-generate coins
         setInterval(() => {
             if (gameState.autoTapper > 0) {
-                const income = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
-                gameState.coins += income / 10;
+                const baseIncome = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
+                const prestigeBonus = 1 + (gameState.prestigePoints * 0.1);
+                const income = (baseIncome * prestigeBonus) / 10;
+                gameState.coins += income;
+                gameState.totalEarned += income;
                 updateDisplay();
             }
         }, 100);
 
+        // Coin Factory bonus
+        setInterval(() => {
+            if (gameState.coinFactory > 0) {
+                const bonus = gameState.coinFactory * upgrades.coinFactory.valuePerLevel;
+                gameState.coins += bonus;
+                gameState.totalEarned += bonus;
+                showFloatingNumber(300, 400, '+' + formatNumber(bonus) + ' Factory', '#10b981');
+                updateDisplay();
+            }
+        }, 10000);
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Prestige System
+        document.getElementById('prestigeButton').addEventListener('click', () => {
+            if (gameState.coins >= 1000000 && gameState.empireLevel >= 10) {
+                const prestigeGain = Math.floor(gameState.empireLevel / 10);
+                gameState.prestigePoints += prestigeGain;
+
+                // Reset progress
+                gameState.coins = 0;
+                gameState.tapPower = 0;
+                gameState.autoTapper = 0;
+                gameState.goldenTouch = 0;
+                gameState.coinFactory = 0;
+                gameState.empireLevel = 1;
+
+                showFloatingNumber(300, 200, `+${prestigeGain} Prestige Points!`, '#8b5cf6', '2em');
+                playSound(1000, 1);
+                updateDisplay();
+                saveGame();
+                checkAchievements();
+            }
+        });
+
+        // Daily Bonus System
+        function openDailyBonus() {
+            const now = new Date();
+            const lastBonus = new Date(gameState.lastDailyBonus);
+            const daysDiff = Math.floor((now - lastBonus) / (1000 * 60 * 60 * 24));
+
+            if (daysDiff >= 1 || gameState.lastDailyBonus === 0) {
+                document.getElementById('dailyBonusModal').style.display = 'flex';
+                const bonus = Math.floor(gameState.empireLevel * 1000 * (1 + daysDiff * 0.5));
+                document.getElementById('dailyBonusContent').innerHTML = `
+                    <h3>Day ${daysDiff + 1} Reward</h3>
+                    <p>🪙 ${formatNumber(bonus)} Coins</p>
+                    ${daysDiff >= 7 ? '<p>🎉 Weekly Bonus: +1 Prestige Point!</p>' : ''}
+                `;
+            } else {
+                showFloatingNumber(300, 200, 'Come back tomorrow!', '#ef4444');
+            }
+        }
+
+        function claimDailyBonus() {
+            const now = new Date();
+            const lastBonus = new Date(gameState.lastDailyBonus);
+            const daysDiff = Math.floor((now - lastBonus) / (1000 * 60 * 60 * 24));
+
+            if (daysDiff >= 1 || gameState.lastDailyBonus === 0) {
+                const bonus = Math.floor(gameState.empireLevel * 1000 * (1 + daysDiff * 0.5));
+                gameState.coins += bonus;
+                gameState.totalEarned += bonus;
+
+                if (daysDiff >= 7) {
+                    gameState.prestigePoints++;
+                }
+
+                gameState.lastDailyBonus = now.getTime();
+                updateDisplay();
+                saveGame();
+                closeDailyBonus();
+                playSound(800, 0.5);
+            }
+        }
+
+        function closeDailyBonus() {
+            document.getElementById('dailyBonusModal').style.display = 'none';
+        }
+
+        // Save and Load Game
         function saveGame() {
             gameState.lastSaveTime = Date.now();
             try {
@@ -215,23 +660,34 @@
                 const saved = localStorage.getItem('tapEmpireGameState');
                 if (saved) {
                     const loadedState = JSON.parse(saved);
+
+                    // Calculate offline progress
                     const timeAway = Date.now() - loadedState.lastSaveTime;
                     const secondsAway = timeAway / 1000;
-                    const offlineIncome = Math.floor(secondsAway * loadedState.autoTapper * upgrades.autoTapper.valuePerLevel);
-                    gameState = loadedState;
+                    const baseOfflineIncome = loadedState.autoTapper * upgrades.autoTapper.valuePerLevel;
+                    const prestigeBonus = 1 + (loadedState.prestigePoints * 0.1);
+                    const offlineIncome = Math.floor(secondsAway * baseOfflineIncome * prestigeBonus);
+
+                    gameState = { ...gameState, ...loadedState };
                     gameState.coins += offlineIncome;
+                    gameState.totalEarned += offlineIncome;
+                    soundEnabled = gameState.soundEnabled !== false;
+
                     if (offlineIncome > 0) {
-                        alert(`Welcome back! You earned ${formatNumber(offlineIncome)} coins while you were away!`);
+                        alert(`Welcome back! You earned ${formatNumber(offlineIncome)} coins while you were away! (${Math.floor(secondsAway/60)} minutes)`);
                     }
                 }
             } catch (e) {
                 console.error('Failed to load game:', e);
             }
             updateDisplay();
+            checkAchievements();
         }
 
+        // Auto-save every 5 seconds
         setInterval(saveGame, 5000);
 
+        // PWA Install functionality
         let deferredPrompt;
         const installPrompt = document.getElementById('installPrompt');
         const installButton = document.getElementById('installButton');
@@ -256,14 +712,27 @@
             installPrompt.style.display = 'none';
         });
 
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
                 .then(registration => console.log('Service Worker registered:', registration))
                 .catch(error => console.log('Service Worker registration failed:', error));
         }
 
-        window.addEventListener('load', () => loadGame());
+        // Initialize game
+        window.addEventListener('load', () => {
+            loadGame();
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+        });
+
         window.addEventListener('beforeunload', saveGame);
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
     </script>
 </body>
-</html>
+                    </html>
