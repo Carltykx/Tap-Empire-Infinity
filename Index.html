@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="Tap Empire Infinity - Build your empire by tapping and upgrading">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <title>Tap Empire Infinity v4.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            min-height: 100vh; color: white; overflow-x: hidden; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 20px 0; margin-bottom: 20px; position: relative; }
+        h1 { font-size: 2.5em; text-shadow: 0 0 20px rgba(99, 102, 241, 0.8); letter-spacing: 2px; }
+        .username-badge {
+            position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.2);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9em; border: 2px solid #10b981;
+            cursor: pointer; transition: all 0.3s; -webkit-tap-highlight-color: transparent;
+        }
+        .username-badge:hover { background: rgba(16, 185, 129, 0.3); }
+        .empire-level {
+            position: absolute; top: 10px; right: 10px; background: rgba(251, 191, 36, 0.2);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9em; border: 2px solid #fbbf24;
+        }
+        .daily-bonus-btn {
+            position: absolute; top: 50px; left: 10px; background: linear-gradient(135deg, #10b981, #059669);
+            padding: 8px 15px; border-radius: 20px; font-size: 0.9em; cursor: pointer;
+            border: 2px solid #10b981; transition: all 0.3s; animation: pulse 2s infinite;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .daily-bonus-btn:hover { background: linear-gradient(135deg, #059669, #047857); }
+        .daily-bonus-btn:active { transform: scale(0.95); }
+        
+        .combo-indicator {
+            position: fixed; top: 100px; right: 20px; background: linear-gradient(135deg, #ef4444, #dc2626);
+            padding: 15px 25px; border-radius: 15px; font-size: 1.5em; font-weight: bold;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5); z-index: 100;
+            display: none; animation: comboAppear 0.3s ease-out;
+        }
+        @keyframes comboAppear {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        
+        .stats-row { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px; }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px;
+            padding: 15px; text-align: center; flex: 1; border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .stat-value { font-size: 1.5em; font-weight: bold; color: #fbbf24; }
+        .stat-label { font-size: 0.9em; color: #e5e7eb; margin-top: 5px; }
+        .coin-display {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px;
+            padding: 30px; text-align: center; margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .coin-amount {
+            font-size: 3em; font-weight: bold; color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); margin-bottom: 10px;
+        }
+        .coin-label { font-size: 1.2em; color: #e5e7eb; }
+        .progress-bar {
+            width: 100%; height: 8px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px; margin: 15px 0; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            border-radius: 10px; transition: width 0.5s ease; width: 0%;
+        }
+        
+        .tap-button {
+            width: 280px; height: 280px; margin: 40px auto;
+            background: radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            border-radius: 50%; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 3.5em;
+            box-shadow: 0 15px 50px rgba(251, 191, 36, 0.6), 0 0 0 8px #fff, 0 0 0 12px rgba(251, 191, 36, 0.3);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative; z-index: 10;
+            -webkit-tap-highlight-color: transparent;
+            outline: none; transform: translateY(-10px);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(-10px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .tap-button:active {
+            transform: translateY(-5px) scale(0.95);
+            box-shadow: 0 8px 30px rgba(251, 191, 36, 0.8), 0 0 0 8px #fff, 0 0 0 12px rgba(251, 191, 36, 0.5);
+        }
+        
+        .tap-button:focus { outline: none; }
+        .tap-button::before { content: '💰'; font-size: 1.2em; }
+        
+        .tap-multiplier {
+            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #ef4444, #dc2626); color: white; 
+            padding: 8px 20px; border-radius: 25px; font-size: 1.1em; display: none;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5); font-weight: bold;
+            animation: bounceIn 0.5s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: translateX(-50%) scale(0); }
+            50% { transform: translateX(-50%) scale(1.2); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .passive-income { text-align: center; margin: 20px 0; font-size: 1.2em; color: #86efac; }
+        
+        .challenges-section { margin: 30px 0; }
+        .challenges-title { font-size: 1.5em; text-align: center; margin-bottom: 20px; color: #fbbf24; }
+        .challenge-card {
+            background: rgba(139, 92, 246, 0.2); border: 2px solid #8b5cf6;
+            border-radius: 15px; padding: 15px; margin-bottom: 15px;
+        }
+        .challenge-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .challenge-title { font-size: 1.2em; color: #c4b5fd; }
+        .challenge-reward { color: #fbbf24; font-weight: bold; }
+        .challenge-progress {
+            width: 100%; height: 6px; background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px; overflow: hidden;
+        }
+        .challenge-progress-fill {
+            height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+            border-radius: 10px; transition: width 0.5s ease;
+        }
+        .challenge-text { margin-top: 8px; font-size: 0.9em; color: #e5e7eb; }
+        
+        .achievements-section { margin: 30px 0; }
+        .achievements-title { font-size: 1.5em; text-align: center; margin-bottom: 20px; color: #fbbf24; }
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+        .achievement {
+            background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 15px;
+            text-align: center; border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.3s;
+            opacity: 0.5;
+        }
+        .achievement.unlocked { 
+            border-color: #fbbf24; background: rgba(251, 191, 36, 0.2); 
+            animation: achievementUnlock 0.8s ease-out; opacity: 1;
+        }
+        
+        @keyframes achievementUnlock {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .achievement-icon { font-size: 2em; margin-bottom: 5px; }
+        .achievement-name { font-size: 0.8em; color: #e5e7eb; }
+        .tabs { display: flex; margin-bottom: 20px; border-radius: 10px; overflow: hidden; flex-wrap: wrap; }
+        .tab { 
+            flex: 1; padding: 15px; background: rgba(255, 255, 255, 0.1); cursor: pointer; 
+            text-align: center; transition: all 0.3s; -webkit-tap-highlight-color: transparent;
+            min-width: 100px;
+        }
+        .tab.active { background: rgba(251, 191, 36, 0.3); border-bottom: 3px solid #fbbf24; }
+        .tab:active { background: rgba(255, 255, 255, 0.2); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .upgrades-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .upgrades-grid { grid-template-columns: 1fr 1fr; } }
+        .upgrade-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border-radius: 15px; padding: 25px; border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .upgrade-card:hover { transform: translateY(-5px); border-color: rgba(251, 191, 36, 0.5); }
+        .upgrade-name { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; color: #fbbf24; }
+        .upgrade-description { font-size: 0.9em; color: #d1d5db; margin-bottom: 15px; }
+        .upgrade-level { font-size: 1.1em; margin-bottom: 10px; color: #a5b4fc; }
+        .upgrade-cost { font-size: 1.2em; margin-bottom: 15px; color: #fbbf24; font-weight: bold; }
+        .upgrade-button {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none; border-radius: 10px; color: white; font-size: 1.1em; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+        }
+        .upgrade-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: scale(1.05);
+        }
+        .upgrade-button:active:not(:disabled) { transform: scale(0.98); }
+        .upgrade-button:disabled { background: #4b5563; cursor: not-allowed; opacity: 0.5; }
+        
+        .prestige-card {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6); border-radius: 15px; padding: 25px;
+            text-align: center; border: 2px solid #8b5cf6; margin-bottom: 20px;
+        }
+        .prestige-button {
+            background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 10px;
+            color: white; font-size: 1.2em; font-weight: bold; padding: 15px 30px; cursor: pointer;
+            transition: all 0.2s; margin-top: 15px; -webkit-tap-highlight-color: transparent;
+        }
+        .prestige-button:hover:not(:disabled) { transform: scale(1.05); }
+        .prestige-button:active:not(:disabled) { transform: scale(0.98); }
+        .prestige-button:disabled { background: #4b5563; cursor: not-allowed; opacity: 0.5; }
+        
+        .referral-section { background: rgba(139, 92, 246, 0.2); border: 2px solid #8b5cf6; border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+        .referral-code { background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px; font-size: 1.5em; text-align: center; margin: 15px 0; letter-spacing: 2px; font-family: monospace; }
+        .referral-share-btn {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: none; border-radius: 10px; color: white; font-size: 1.1em; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        .referral-stats { display: flex; justify-content: space-around; margin-top: 20px; }
+        .referral-stat { text-align: center; }
+        .referral-stat-value { font-size: 2em; color: #fbbf24; font-weight: bold; }
+        .referral-stat-label { font-size: 0.9em; color: #e5e7eb; }
+        
+        .personal-best-card {
+            background: linear-gradient(135deg, #10b981, #059669); border-radius: 15px;
+            padding: 20px; margin-bottom: 20px; border: 2px solid #10b981;
+        }
+        .pb-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 1.1em; }
+        
+        .floating-number {
+            position: fixed; font-size: 2em; font-weight: bold; color: #fbbf24; pointer-events: none;
+            animation: float-up 1s ease-out forwards; text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); z-index: 1000;
+        }
+        @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        
+        .level-celebration {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e1b4b;
+            padding: 30px 50px; border-radius: 20px; font-size: 2em; font-weight: bold;
+            z-index: 2000; display: none; text-align: center;
+            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.8);
+            animation: levelUpCelebration 2s ease-out forwards;
+        }
+        
+        @keyframes levelUpCelebration {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        .fireworks {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1999;
+        }
+        
+        .firework {
+            position: absolute; width: 4px; height: 4px; border-radius: 50%;
+            animation: firework 1s ease-out forwards;
+        }
+        
+        @keyframes firework {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e1b4b, #312e81); padding: 30px; border-radius: 20px;
+            text-align: center; border: 2px solid #fbbf24; max-width: 400px; margin: 20px;
+        }
+        .close-modal { float: right; font-size: 1.5em; cursor: pointer; color: #fbbf24; }
+        .modal input {
+            width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px;
+            border: 2px solid #fbbf24; background: rgba(255, 255, 255, 0.1);
+            color: white; font-size: 1.1em;
+        }
+        .modal input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .modal button {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: none; border-radius: 10px; color: #1e1b4b; font-size: 1.1em;
+            font-weight: bold; cursor: pointer; margin-top: 10px; transition: transform 0.2s;
+        }
+        .modal button:hover { transform: scale(1.05); }
+        .footer { text-align: center; padding: 30px 0; color: #9ca3af; font-size: 0.9em; }
+        .sound-toggle {
+            position: absolute; top: 50px; right: 10px; background: rgba(255, 255, 255, 0.2);
+            padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2em;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sound-toggle:active { transform: scale(0.9); }
+    </style>
+</head><body>
+    <div class="container">
+        <header>
+            <div class="username-badge" id="usernameBadge" onclick="openProfile()">👤 Player</div>
+            <div class="daily-bonus-btn" onclick="openDailyBonus()">🎁 Daily</div>
+            <div class="sound-toggle" onclick="toggleSound()" id="soundToggle">🔊</div>
+            <div class="empire-level">Empire Level: <span id="empireLevel">1</span></div>
+            <h1>EMPIRE WEALTH</h1>
+        </header>
+
+        <div class="combo-indicator" id="comboIndicator">
+            COMBO x<span id="comboCount">0</span>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTaps">0</div>
+                <div class="stat-label">Total Taps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalEarned">0</div>
+                <div class="stat-label">Total Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="prestigePoints">0</div>
+                <div class="stat-label">Prestige Points</div>
+            </div>
+        </div>
+
+        <div class="coin-display">
+            <div class="coin-amount" id="coinAmount">0</div>
+            <div class="coin-label">coins</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="font-size: 0.9em; color: #a5b4fc;">Progress to next Empire Level</div>
+        </div>
+
+        <button class="tap-button" id="tapButton">
+            <div class="tap-multiplier" id="tapMultiplier">x5!</div>
+        </button>
+
+        <div class="passive-income">
+            <span id="passiveIncome">Passive Income: 0/sec</span>
+        </div>
+
+        <div class="challenges-section">
+            <h3 class="challenges-title">🎯 Daily Challenges</h3>
+            <div id="challengesContainer"></div>
+        </div>
+
+        <div class="achievements-section">
+            <h3 class="achievements-title">Achievements</h3>
+            <div class="achievements-grid" id="achievementsGrid">
+                <div class="achievement" data-achievement="first_tap">
+                    <div class="achievement-icon">👆</div>
+                    <div class="achievement-name">First Tap</div>
+                </div>
+                <div class="achievement" data-achievement="hundred_taps">
+                    <div class="achievement-icon">💯</div>
+                    <div class="achievement-name">100 Taps</div>
+                </div>
+                <div class="achievement" data-achievement="first_upgrade">
+                    <div class="achievement-icon">⬆️</div>
+                    <div class="achievement-name">First Upgrade</div>
+                </div>
+                <div class="achievement" data-achievement="millionaire">
+                    <div class="achievement-icon">💰</div>
+                    <div class="achievement-name">Millionaire</div>
+                </div>
+                <div class="achievement" data-achievement="empire_level_5">
+                    <div class="achievement-icon">👑</div>
+                    <div class="achievement-name">Empire V</div>
+                </div>
+                <div class="achievement" data-achievement="prestige_master">
+                    <div class="achievement-icon">🌟</div>
+                    <div class="achievement-name">Prestige</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('upgrades')">Upgrades</div>
+            <div class="tab" onclick="switchTab('referrals')">Referrals</div>
+            <div class="tab" onclick="switchTab('prestige')">Prestige</div>
+            <div class="tab" onclick="switchTab('best')">Best</div>
+        </div>
+
+        <div class="tab-content active" id="upgrades">
+            <div class="upgrades-grid">
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Tap Power</div>
+                    <div class="upgrade-description">Increase coins per tap (+<span id="tapPowerValue">1</span> per level)</div>
+                    <div class="upgrade-level">Level: <span id="tapPowerLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="tapPowerCost">10</span></div>
+                    <button class="upgrade-button" id="tapPowerButton">Upgrade</button>
+                </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Auto Tapper</div>
+                    <div class="upgrade-description">Earn coins automatically (+<span id="autoTapperValue">1</span>/sec per level)</div>
+                    <div class="upgrade-level">Level: <span id="autoTapperLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="autoTapperCost">50</span></div>
+                    <button class="upgrade-button" id="autoTapperButton">Upgrade</button>
+                </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Golden Touch</div>
+                    <div class="upgrade-description">10% chance for 5x tap value</div>
+                    <div class="upgrade-level">Level: <span id="goldenTouchLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="goldenTouchCost">500</span></div>
+                    <button class="upgrade-button" id="goldenTouchButton">Upgrade</button>
+                </div>
+                <div class="upgrade-card">
+                    <div class="upgrade-name">Coin Factory</div>
+                    <div class="upgrade-description">Generates coins every 10 seconds</div>
+                    <div class="upgrade-level">Level: <span id="coinFactoryLevel">0</span></div>
+                    <div class="upgrade-cost">Cost: <span id="coinFactoryCost">2000</span></div>
+                    <button class="upgrade-button" id="coinFactoryButton">Upgrade</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="referrals">
+            <div class="referral-section">
+                <h3>🎁 Invite Friends & Earn!</h3>
+                <p style="margin: 15px 0;">Share your referral code and earn 10,000 coins + 5% of their earnings!</p>
+                <div class="referral-code" id="referralCode">Loading...</div>
+                <button class="referral-share-btn" onclick="shareReferralCode()">📤 Share Code</button>
+                <div class="referral-stats">
+                    <div class="referral-stat">
+                        <div class="referral-stat-value" id="referralCount">0</div>
+                        <div class="referral-stat-label">Referrals</div>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="referral-stat-value" id="referralEarnings">0</div>
+                        <div class="referral-stat-label">Earned</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="prestige">
+            <div class="prestige-card">
+                <h3>🌟 PRESTIGE SYSTEM 🌟</h3>
+                <p>Reset your progress to gain permanent bonuses!</p>
+                <p>Requirements: 1,000,000 coins & Empire Level 10</p>
+                <p>You will gain: <span id="prestigeGain">1</span> Prestige Point</p>
+                <p>Each Prestige Point gives +20% tap power and +10% passive income</p>
+                <button class="prestige-button" id="prestigeButton">PRESTIGE NOW</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="best">
+            <div class="personal-best-card">
+                <h3>🏆 Your Personal Best</h3>
+                <div class="pb-row">
+                    <span>Highest Coins:</span>
+                    <span id="pbCoins">0</span>
+                </div>
+                <div class="pb-row">
+                    <span>Highest Level:</span>
+                    <span id="pbLevel">1</span>
+                </div>
+                <div class="pb-row">
+                    <span>Total Prestiges:</span>
+                    <span id="pbPrestiges">0</span>
+                </div>
+                <div class="pb-row">
+                    <span>Lifetime Earnings:</span>
+                    <span id="pbLifetime">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Tap Empire Infinity PWA v4.0 - Ultimate Edition</p>
+            <p>Your empire awaits! Keep tapping and upgrading!</p>
+        </div>
+    </div>
+
+    <div class="level-celebration" id="levelCelebration">
+        <div>🎉 EMPIRE LEVEL UP! 🎉</div>
+        <div id="levelCelebrationText">Level 2 Achieved!</div>
+    </div>
+    
+    <div class="fireworks" id="fireworks"></div>
+
+    <!-- Welcome Modal -->
+    <div class="modal" id="welcomeModal">
+        <div class="modal-content">
+            <h2>👑 Welcome to Tap Empire!</h2>
+            <p>Choose your empire name:</p>
+            <input type="text" id="usernameInput" placeholder="Enter username" maxlength="20">
+            <button onclick="saveUsername()">Start Building!</button>
+        </div>
+    </div>
+
+    <!-- Daily Bonus Modal -->
+    <div class="modal" id="dailyBonusModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDailyBonus()">&times;</span>
+            <h2>🎁 Daily Bonus!</h2>
+            <p>Come back every day for amazing rewards!</p>
+            <div id="dailyBonusContent"></div>
+            <button onclick="claimDailyBonus()">Claim Reward!</button>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProfile()">&times;</span>
+            <h2>👤 Your Profile</h2>
+            <input type="text" id="profileUsernameInput" placeholder="New username" maxlength="20">
+            <button onclick="updateUsername()">Update Username</button>
+        </div>
+    </div>
+
+    <script>        // Enhanced Game State with v4.0 features
+        let gameState = {
+            coins: 0,
+            tapPower: 0,
+            autoTapper: 0,
+            goldenTouch: 0,
+            coinFactory: 0,
+            totalTaps: 0,
+            totalEarned: 0,
+            empireLevel: 1,
+            prestigePoints: 0,
+            lastSaveTime: Date.now(),
+            lastDailyBonus: 0,
+            soundEnabled: true,
+            playerName: "Player",
+            achievements: {},
+            referralCode: '',
+            referrals: [],
+            referralEarnings: 0,
+            comboCount: 0,
+            lastTapTime: 0,
+            personalBest: {
+                highestCoins: 0,
+                highestLevel: 1,
+                totalPrestiges: 0,
+                lifetimeEarnings: 0
+            },
+            dailyChallenges: [],
+            lastChallengeDate: ''
+        };
+
+        // Enhanced Sound System
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        function playTapSound() {
+            if (!soundEnabled) return;
+            const frequency = 400 + Math.random() * 200;
+            playTone(frequency, 0.1, 'sine', 0.3);
+        }
+
+        function playUpgradeSound() {
+            if (!soundEnabled) return;
+            playTone(523, 0.1, 'square', 0.4);
+            setTimeout(() => playTone(659, 0.1, 'square', 0.4), 100);
+            setTimeout(() => playTone(784, 0.2, 'square', 0.4), 200);
+        }
+
+        function playDailyBonusSound() {
+            if (!soundEnabled) return;
+            playTone(800, 0.15, 'triangle', 0.3);
+            setTimeout(() => playTone(1000, 0.15, 'triangle', 0.3), 150);
+            setTimeout(() => playTone(1200, 0.25, 'triangle', 0.3), 300);
+        }
+
+        function playLevelUpSound() {
+            if (!soundEnabled) return;
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((note, index) => {
+                setTimeout(() => playTone(note, 0.3, 'sawtooth', 0.4), index * 100);
+            });
+        }
+
+        function playAchievementSound() {
+            if (!soundEnabled) return;
+            playTone(1000, 0.2, 'triangle', 0.3);
+            setTimeout(() => playTone(1200, 0.2, 'triangle', 0.3), 200);
+            setTimeout(() => playTone(1500, 0.3, 'triangle', 0.3), 400);
+        }
+
+        function playGoldenTouchSound() {
+            if (!soundEnabled) return;
+            playTone(1500, 0.3, 'sine', 0.4);
+            setTimeout(() => playTone(1800, 0.2, 'sine', 0.3), 150);
+        }
+
+        function playTone(frequency, duration, type = 'sine', volume = 0.3) {
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Audio context not available');
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            gameState.soundEnabled = soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playTapSound();
+            saveGame();
+        }
+
+        // Upgrade configurations
+        const upgrades = {
+            tapPower: { baseCost: 10, costMultiplier: 1.15, valuePerLevel: 1 },
+            autoTapper: { baseCost: 50, costMultiplier: 1.20, valuePerLevel: 1 },
+            goldenTouch: { baseCost: 500, costMultiplier: 1.25, valuePerLevel: 1 },
+            coinFactory: { baseCost: 2000, costMultiplier: 1.30, valuePerLevel: 100 }
+        };
+
+        // Achievement definitions
+        const achievements = {
+            first_tap: { name: "First Tap", threshold: 1, check: () => gameState.totalTaps >= 1 },
+            hundred_taps: { name: "Century Tapper", threshold: 100, check: () => gameState.totalTaps >= 100 },
+            first_upgrade: { name: "Growing Empire", check: () => gameState.tapPower > 0 || gameState.autoTapper > 0 },
+            millionaire: { name: "Millionaire", threshold: 1000000, check: () => gameState.totalEarned >= 1000000 },
+            empire_level_5: { name: "Empire Level V", threshold: 5, check: () => gameState.empireLevel >= 5 },
+            prestige_master: { name: "Prestige Master", check: () => gameState.prestigePoints > 0 }
+        };
+
+        // DOM Elements
+        const coinAmountEl = document.getElementById('coinAmount');
+        const tapButton = document.getElementById('tapButton');
+        const passiveIncomeEl = document.getElementById('passiveIncome');
+        const progressFillEl = document.getElementById('progressFill');
+        const empireLevelEl = document.getElementById('empireLevel');
+        const totalTapsEl = document.getElementById('totalTaps');
+        const totalEarnedEl = document.getElementById('totalEarned');
+        const prestigePointsEl = document.getElementById('prestigePoints');
+        const tapMultiplierEl = document.getElementById('tapMultiplier');
+        const comboIndicatorEl = document.getElementById('comboIndicator');
+        const comboCountEl = document.getElementById('comboCount');
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return Math.floor(num).toString();
+        }
+
+        function getUpgradeCost(upgradeType, level) {
+            const config = upgrades[upgradeType];
+            return Math.floor(config.baseCost * Math.pow(config.costMultiplier, level));
+        }
+
+        // Username System
+        function checkUsername() {
+            const username = localStorage.getItem('tapEmpireUsername');
+            if (!username) {
+                document.getElementById('welcomeModal').style.display = 'flex';
+            } else {
+                gameState.playerName = username;
+                document.getElementById('usernameBadge').textContent = '👤 ' + username;
+            }
+        }
+
+        function saveUsername() {
+            const input = document.getElementById('usernameInput');
+            const username = input.value.trim();
+            if (username.length >= 3) {
+                localStorage.setItem('tapEmpireUsername', username);
+                gameState.playerName = username;
+                document.getElementById('usernameBadge').textContent = '👤 ' + username;
+                document.getElementById('welcomeModal').style.display = 'none';
+                playUpgradeSound();
+            } else {
+                alert('Username must be at least 3 characters!');
+            }
+        }
+
+        function openProfile() {
+            document.getElementById('profileModal').style.display = 'flex';
+            document.getElementById('profileUsernameInput').value = gameState.playerName;
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function updateUsername() {
+            const input = document.getElementById('profileUsernameInput');
+            const username = input.value.trim();
+            if (username.length >= 3) {
+                localStorage.setItem('tapEmpireUsername', username);
+                gameState.playerName = username;
+                document.getElementById('usernameBadge').textContent = '👤 ' + username;
+                closeProfile();
+                playUpgradeSound();
+            } else {
+                alert('Username must be at least 3 characters!');
+            }
+        }
+
+        // Referral System
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const part1 = Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            const part2 = Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            return `TE-${part1}-${part2}`;
+        }
+
+        function initializeReferralCode() {
+            if (!gameState.referralCode) {
+                gameState.referralCode = generateReferralCode();
+            }
+            document.getElementById('referralCode').textContent = gameState.referralCode;
+        }
+
+        function shareReferralCode() {
+            const url = window.location.origin + window.location.pathname + '?ref=' + gameState.referralCode;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join Tap Empire Infinity!',
+                    text: `Join me in Tap Empire Infinity! Use my code: ${gameState.referralCode}`,
+                    url: url
+                }).catch(() => copyToClipboard(url));
+            } else {
+                copyToClipboard(url);
+            }
+            playDailyBonusSound();
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Referral link copied to clipboard!');
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Referral link copied!');
+            }
+        }
+
+        function checkReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode && refCode !== gameState.referralCode) {
+                const alreadyReferred = localStorage.getItem('tapEmpireReferred');
+                if (!alreadyReferred) {
+                    gameState.coins += 10000;
+                    localStorage.setItem('tapEmpireReferred', 'true');
+                    alert('🎁 Welcome! You received 10,000 bonus coins from your referral!');
+                    playLevelUpSound();
+                }
+            }
+        }
+
+        function updateReferralStats() {
+            document.getElementById('referralCount').textContent = gameState.referrals.length;
+            document.getElementById('referralEarnings').textContent = formatNumber(gameState.referralEarnings);
+        }
+
+        // Combo System
+        function updateCombo() {
+            const now = Date.now();
+            if (now - gameState.lastTapTime < 3000) {
+                gameState.comboCount++;
+            } else {
+                gameState.comboCount = 1;
+            }
+            gameState.lastTapTime = now;
+
+            if (gameState.comboCount >= 10) {
+                comboIndicatorEl.style.display = 'block';
+                comboCountEl.textContent = gameState.comboCount;
+            } else {
+                comboIndicatorEl.style.display = 'none';
+            }
+
+            setTimeout(() => {
+                if (Date.now() - gameState.lastTapTime >= 3000) {
+                    gameState.comboCount = 0;
+                    comboIndicatorEl.style.display = 'none';
+                }
+            }, 3000);
+        }
+
+        function getComboMultiplier() {
+            if (gameState.comboCount >= 100) return 5;
+            if (gameState.comboCount >= 50) return 3;
+            if (gameState.comboCount >= 25) return 2;
+            if (gameState.comboCount >= 10) return 1.5;
+            return 1;
+        }
+
+        // Daily Challenges
+        function generateDailyChallenges() {
+            const today = new Date().toDateString();
+            if (gameState.lastChallengeDate !== today) {
+                gameState.lastChallengeDate = today;
+                gameState.dailyChallenges = [
+                    { type: 'taps', target: 50 + gameState.empireLevel * 10, progress: 0, reward: 5000, name: 'Tap Master' },
+                    { type: 'coins', target: 10000 * gameState.empireLevel, progress: 0, reward: 10000, name: 'Coin Collector' },
+                    { type: 'upgrades', target: 3, progress: 0, reward: 15000, name: 'Upgrade Expert' }
+                ];
+            }
+        }
+
+        function updateChallengeProgress(type, amount) {
+            gameState.dailyChallenges.forEach(challenge => {
+                if (challenge.type === type && challenge.progress < challenge.target) {
+                    challenge.progress = Math.min(challenge.progress + amount, challenge.target);
+                    if (challenge.progress >= challenge.target && !challenge.completed) {
+                        challenge.completed = true;
+                        gameState.coins += challenge.reward;
+                        showFloatingNumber(300, 200, `+${formatNumber(challenge.reward)} Challenge Reward!`, '#8b5cf6', '1.5em');
+                        playAchievementSound();
+                    }
+                }
+            });
+            renderChallenges();
+        }
+
+        function renderChallenges() {
+            const container = document.getElementById('challengesContainer');
+            if (gameState.dailyChallenges.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #a5b4fc;">New challenges coming soon!</p>';
+                return;
+            }
+            
+            container.innerHTML = gameState.dailyChallenges.map(challenge => {
+                const progress = Math.min(100, (challenge.progress / challenge.target) * 100);
+                const completed = challenge.completed ? '✅' : '';
+                return `
+                    <div class="challenge-card">
+                        <div class="challenge-header">
+                            <div class="challenge-title">${challenge.name} ${completed}</div>
+                            <div class="challenge-reward">🪙 ${formatNumber(challenge.reward)}</div>
+                        </div>
+                        <div class="challenge-progress">
+                            <div class="challenge-progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="challenge-text">${Math.floor(challenge.progress)}/${challenge.target}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Level Up Celebration
+        function showLevelUpCelebration(newLevel) {
+            const celebration = document.getElementById('levelCelebration');
+            const celebrationText = document.getElementById('levelCelebrationText');
+            celebrationText.textContent = `Level ${newLevel} Achieved!`;
+            celebration.style.display = 'block';
+            
+            createFireworks();
+            playLevelUpSound();
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+            }, 3000);
+        }
+
+        function createFireworks() {
+            const fireworksContainer = document.getElementById('fireworks');
+            const colors = ['#fbbf24', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    fireworksContainer.appendChild(firework);
+                    
+                    setTimeout(() => firework.remove(), 1000);
+                }, i * 100);
+            }
+        }
+
+        // Empire Level Tracking
+        function updateEmpireLevel() {
+            const newLevel = Math.floor(Math.log10(Math.max(gameState.totalEarned, 1)) * 2) + 1;
+            if (newLevel > gameState.empireLevel) {
+                gameState.empireLevel = newLevel;
+                showFloatingNumber(300, 200, `Empire Level ${newLevel}!`, '#fbbf24', '1.5em');
+                showLevelUpCelebration(newLevel);
+                checkAchievements();
+            }
+            
+            const nextLevelReq = Math.pow(10, (gameState.empireLevel) / 2);
+            const progress = (gameState.totalEarned / nextLevelReq) * 100;
+            progressFillEl.style.width = Math.min(progress, 100) + '%';
+        }
+
+        // Achievement System - FIXED
+        function initializeAchievements() {
+            Object.keys(achievements).forEach(id => {
+                const element = document.querySelector(`[data-achievement="${id}"]`);
+                if (element && gameState.achievements[id]) {
+                    element.classList.add('unlocked');
+                }
+            });
+        }
+
+        function checkAchievements() {
+            Object.keys(achievements).forEach(id => {
+                const achievement = achievements[id];
+                if (achievement.check() && !gameState.achievements[id]) {
+                    gameState.achievements[id] = true;
+                    const element = document.querySelector(`[data-achievement="${id}"]`);
+                    if (element) {
+                        element.classList.add('unlocked');
+                    }
+                    showFloatingNumber(300, 300, `Achievement Unlocked!`, '#10b981', '1.2em');
+                    playAchievementSound();
+                }
+            });
+        }
+
+        // Personal Best Tracking
+        function updatePersonalBest() {
+            if (gameState.coins > gameState.personalBest.highestCoins) {
+                gameState.personalBest.highestCoins = gameState.coins;
+            }
+            if (gameState.empireLevel > gameState.personalBest.highestLevel) {
+                gameState.personalBest.highestLevel = gameState.empireLevel;
+            }
+            gameState.personalBest.lifetimeEarnings = gameState.totalEarned;
+            
+            document.getElementById('pbCoins').textContent = formatNumber(gameState.personalBest.highestCoins);
+            document.getElementById('pbLevel').textContent = gameState.personalBest.highestLevel;
+            document.getElementById('pbPrestiges').textContent = gameState.personalBest.totalPrestiges;
+            document.getElementById('pbLifetime').textContent = formatNumber(gameState.personalBest.lifetimeEarnings);
+        }
+
+        // Update Display
+        function updateDisplay() {
+            coinAmountEl.textContent = formatNumber(gameState.coins);
+            empireLevelEl.textContent = gameState.empireLevel;
+            totalTapsEl.textContent = formatNumber(gameState.totalTaps);
+            totalEarnedEl.textContent = formatNumber(gameState.totalEarned);
+            prestigePointsEl.textContent = gameState.prestigePoints;
+
+            ['tapPower', 'autoTapper', 'goldenTouch', 'coinFactory'].forEach(upgrade => {
+                const level = gameState[upgrade];
+                document.getElementById(upgrade + 'Level').textContent = level;
+                document.getElementById(upgrade + 'Cost').textContent = formatNumber(getUpgradeCost(upgrade, level));
+                
+                const button = document.getElementById(upgrade + 'Button');
+                button.disabled = gameState.coins < getUpgradeCost(upgrade, level);
+            });
+
+            const basePassive = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
+            const prestigeBonus = 1 + (gameState.prestigePoints * 0.1);
+            const totalPassive = basePassive * prestigeBonus;
+            passiveIncomeEl.textContent = `Passive Income: ${formatNumber(totalPassive)}/sec`;
+
+            const canPrestige = gameState.coins >= 1000000 && gameState.empireLevel >= 10;
+            document.getElementById('prestigeButton').disabled = !canPrestige;
+            document.getElementById('prestigeGain').textContent = Math.floor(gameState.empireLevel / 10);
+
+            updateEmpireLevel();
+            updatePersonalBest();
+        }
+
+        function showFloatingNumber(x, y, text, color = '#fbbf24', fontSize = '2em') {
+            const floatingNum = document.createElement('div');
+            floatingNum.className = 'floating-number';
+            floatingNum.textContent = text;
+            floatingNum.style.left = x + 'px';
+            floatingNum.style.top = y + 'px';
+            floatingNum.style.color = color;
+            floatingNum.style.fontSize = fontSize;
+            document.body.appendChild(floatingNum);
+            setTimeout(() => floatingNum.remove(), 1000);
+        }
+
+        // Tap Handler with Combo
+        tapButton.addEventListener('click', (e) => {
+            updateCombo();
+            
+            let tapValue = 1 + (gameState.tapPower * upgrades.tapPower.valuePerLevel);
+            const prestigeBonus = 1 + (gameState.prestigePoints * 0.2);
+            tapValue = Math.floor(tapValue * prestigeBonus);
+            
+            const comboMultiplier = getComboMultiplier();
+            let multiplier = comboMultiplier;
+            
+            if (gameState.goldenTouch > 0 && Math.random() < (gameState.goldenTouch * 0.1)) {
+                multiplier *= 5;
+                tapMultiplierEl.style.display = 'block';
+                tapMultiplierEl.textContent = 'x' + (multiplier > 5 ? multiplier : 5) + '!';
+                setTimeout(() => { tapMultiplierEl.style.display = 'none'; }, 1000);
+                playGoldenTouchSound();
+            } else {
+                playTapSound();
+            }
+            
+            const finalValue = Math.floor(tapValue * multiplier);
+            gameState.coins += finalValue;
+            gameState.totalTaps++;
+            gameState.totalEarned += finalValue;
+            
+            updateDisplay();
+            showFloatingNumber(e.pageX, e.pageY, '+' + formatNumber(finalValue));
+            checkAchievements();
+            updateChallengeProgress('taps', 1);
+        });
+
+        // Upgrade Handlers
+        function buyUpgrade(upgradeType) {
+            const cost = getUpgradeCost(upgradeType, gameState[upgradeType]);
+            if (gameState.coins >= cost) {
+                gameState.coins -= cost;
+                gameState[upgradeType]++;
+                updateDisplay();
+                playUpgradeSound();
+                saveGame();
+                checkAchievements();
+                updateChallengeProgress('upgrades', 1);
+            }
+        }
+
+        ['tapPower', 'autoTapper', 'goldenTouch', 'coinFactory'].forEach(upgrade => {
+            document.getElementById(upgrade + 'Button').addEventListener('click', () => buyUpgrade(upgrade));
+        });
+
+        // Auto-generate coins
+        setInterval(() => {
+            if (gameState.autoTapper > 0) {
+                const baseIncome = gameState.autoTapper * upgrades.autoTapper.valuePerLevel;
+                const prestigeBonus = 1 + (gameState.prestigePoints * 0.1);
+                const income = (baseIncome * prestigeBonus) / 10;
+                gameState.coins += income;
+                gameState.totalEarned += income;
+                updateDisplay();
+                updateChallengeProgress('coins', income);
+            }
+        }, 100);
+
+        // Coin Factory
+        setInterval(() => {
+            if (gameState.coinFactory > 0) {
+                const bonus = gameState.coinFactory * upgrades.coinFactory.valuePerLevel;
+                gameState.coins += bonus;
+                gameState.totalEarned += bonus;
+                showFloatingNumber(300, 400, '+' + formatNumber(bonus) + ' Factory', '#10b981');
+                updateDisplay();
+            }
+        }, 10000);
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            playTapSound();
+        }
+
+        // Prestige System
+        document.getElementById('prestigeButton').addEventListener('click', () => {
+            if (gameState.coins >= 1000000 && gameState.empireLevel >= 10) {
+                const prestigeGain = Math.floor(gameState.empireLevel / 10);
+                gameState.prestigePoints += prestigeGain;
+                gameState.personalBest.totalPrestiges++;
+                
+                gameState.coins = 0;
+                gameState.tapPower = 0;
+                gameState.autoTapper = 0;
+                gameState.goldenTouch = 0;
+                gameState.coinFactory = 0;
+                gameState.empireLevel = 1;
+                
+                showFloatingNumber(300, 200, `+${prestigeGain} Prestige Points!`, '#8b5cf6', '2em');
+                playLevelUpSound();
+                createFireworks();
+                updateDisplay();
+                saveGame();
+                checkAchievements();
+            }
+        });
+
+        // Daily Bonus
+        function openDailyBonus() {
+            playDailyBonusSound();
+            const now = new Date();
+            const lastBonus = new Date(gameState.lastDailyBonus);
+            const daysDiff = Math.floor((now - lastBonus) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff >= 1 || gameState.lastDailyBonus === 0) {
+                document.getElementById('dailyBonusModal').style.display = 'flex';
+                const bonus = Math.floor(gameState.empireLevel * 1000 * (1 + daysDiff * 0.5));
+                document.getElementById('dailyBonusContent').innerHTML = `
+                    <h3>Day ${daysDiff + 1} Reward</h3>
+                    <p style="font-size: 2em; margin: 20px 0;">🪙 ${formatNumber(bonus)} Coins</p>
+                    ${daysDiff >= 7 ? '<p>🎉 Weekly Bonus: +1 Prestige Point!</p>' : ''}
+                `;
+            } else {
+                showFloatingNumber(300, 200, 'Come back tomorrow!', '#ef4444');
+            }
+        }
+
+        function claimDailyBonus() {
+            const now = new Date();
+            const lastBonus = new Date(gameState.lastDailyBonus);
+            const daysDiff = Math.floor((now - lastBonus) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff >= 1 || gameState.lastDailyBonus === 0) {
+                const bonus = Math.floor(gameState.empireLevel * 1000 * (1 + daysDiff * 0.5));
+                gameState.coins += bonus;
+                gameState.totalEarned += bonus;
+                
+                if (daysDiff >= 7) {
+                    gameState.prestigePoints++;
+                }
+                
+                gameState.lastDailyBonus = now.getTime();
+                updateDisplay();
+                saveGame();
+                closeDailyBonus();
+                playLevelUpSound();
+            }
+        }
+
+        function closeDailyBonus() {
+            document.getElementById('dailyBonusModal').style.display = 'none';
+        }
+
+        // Save/Load Game
+        function saveGame() {
+            gameState.lastSaveTime = Date.now();
+            try {
+                localStorage.setItem('tapEmpireGameState', JSON.stringify(gameState));
+            } catch (e) {
+                console.error('Failed to save game:', e);
+            }
+        }
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('tapEmpireGameState');
+                if (saved) {
+                    const loadedState = JSON.parse(saved);
+                    
+                    const timeAway = Date.now() - loadedState.lastSaveTime;
+                    const secondsAway = timeAway / 1000;
+                    const baseOfflineIncome = loadedState.autoTapper * upgrades.autoTapper.valuePerLevel;
+                    const prestigeBonus = 1 + (loadedState.prestigePoints * 0.1);
+                    const offlineIncome = Math.floor(secondsAway * baseOfflineIncome * prestigeBonus);
+                    
+                    gameState = { ...gameState, ...loadedState };
+                    gameState.coins += offlineIncome;
+                    gameState.totalEarned += offlineIncome;
+                    soundEnabled = gameState.soundEnabled !== false;
+                    
+                    if (offlineIncome > 0) {
+                        setTimeout(() => {
+                            alert(`Welcome back! You earned ${formatNumber(offlineIncome)} coins while you were away! (${Math.floor(secondsAway/60)} minutes)`);
+                        }, 1000);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load game:', e);
+            }
+            
+            initializeAchievements();
+            updateDisplay();
+            checkAchievements();
+            initializeReferralCode();
+            updateReferralStats();
+            generateDailyChallenges();
+            renderChallenges();
+        }
+
+        setInterval(saveGame, 5000);
+
+        // PWA Install
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('Service Worker registered:', registration))
+                .catch(error => console.log('Service Worker registration failed:', error));
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            checkUsername();
+            loadGame();
+            checkReferral();
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+        });
+
+        window.addEventListener('beforeunload', saveGame);
+
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
