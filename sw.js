@@ -1,8 +1,8 @@
 // Enhanced Service Worker for Tap Empire Infinity PWA
 // Version 2.0 - With automatic update system
 
-const VERSION = '2.0';
-const CACHE_NAME = 'tap-empire-v2'; // INCREMENT THIS WITH EACH UPDATE
+const VERSION = '3.0';
+const CACHE_NAME = 'tap-empire-v3'; // INCREMENT THIS WITH EACH UPDATE
 const urlsToCache = [
   './',
   './index.html',
